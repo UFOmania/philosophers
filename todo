@@ -1,0 +1,40 @@
+{
+    limit the inputs
+}
+
+{
+    ➜  philosophers git:(master) ✗ ./philo 4 +1 10 10
+    philos count :4
+    time to die :1
+    time to eat :10
+    time to sleep :10
+    times_must_eat :-1
+}
+
+{
+        ➜  philosophers git:(master) ✗ ./philo "1" "1" "1" "1" 
+    philos count :1
+    time to die :1
+    time to eat :1
+    time to sleep :1
+    times_must_eat :-1
+    0 0 is thinking
+    0 0 has taken a fork
+    2 0 died
+}
+
+{
+        ➜  philosophers git:(master) ✗ ./philo 2305843009213693953 2305843009213693953 2305843009213693953 2305843009213693953
+    philos count :1
+    time to die :2305843009213693953
+    time to eat :2305843009213693953
+    time to sleep :2305843009213693953
+    times_must_eat :-1
+    0 0 is thinking
+    0 0 has taken a fork
+    ^C
+}
+
+{
+    ./philo 4 400 100 100 0 
+}

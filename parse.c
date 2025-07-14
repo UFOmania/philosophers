@@ -6,7 +6,7 @@
 /*   By: massrayb <massrayb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 18:35:03 by massrayb          #+#    #+#             */
-/*   Updated: 2025/07/13 23:42:19 by massrayb         ###   ########.fr       */
+/*   Updated: 2025/07/14 11:17:10 by massrayb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static int is_digit(char *str)
 {
-	int				i;
+	int	i;
 
 	i = 0;
 	if (str[0] == '+')
@@ -40,21 +40,35 @@ int	parse_args(t_args *args, int ac, char **av)
 	*args = (t_args){0};
 	if (is_digit(av[0]))
 	{
-		if ((args->philos_count = ft_atoi(av[0])) == 0)
-			return (printf("error: invalid arguments \"philos_count must be more then 0\" \n"), R_FAIL);
+		args->philos_count = ft_atoi(av[0]);
+		if (args->philos_count <= 0)
+			return (printf("error: invalid arguments \"philos_count \" \n"), R_FAIL);
 	}
 	else
 		return (R_FAIL);
 	if (is_digit(av[1]))
+	{
 		args->time_to_die = ft_atoi(av[1]);
+		if (args->time_to_die < 0)
+			return (printf("error: invalid arguments \"time_to_die \" \n"), R_FAIL);
+	}
 	else
 		return (R_FAIL);
 	if (is_digit(av[2]))
+	{
 		args->time_to_eat = ft_atoi(av[2]);
+		if (args->time_to_eat < 0)
+			return (printf("error: invalid arguments \"time_to_die \" \n"), R_FAIL);
+	
+	}
 	else
 		return (R_FAIL);
 	if (is_digit(av[3]))
+	{
 		args->time_to_sleep = ft_atoi(av[3]);
+		if (args->time_to_sleep < 0)
+			return (printf("error: invalid arguments \"time_to_die \" \n"), R_FAIL);
+	}
 	else
 		return (R_FAIL);
 	if (ac == 6)
@@ -62,8 +76,8 @@ int	parse_args(t_args *args, int ac, char **av)
 		if (is_digit(av[4]))
 		{
 			args->num_times_must_eat = ft_atoi(av[4]);
-			if (args->num_times_must_eat == 0)
-				return (printf("error: invalid arguments \"number_of_times_each_philosopher_must_eat must be more then 0\" \n"), R_FAIL);
+			if (args->num_times_must_eat <= 0)
+				return (printf("error: invalid arguments \"number_of_times_each_philosopher_must_eat \" \n"), R_FAIL);
 		}
 		else
 			return (R_FAIL);

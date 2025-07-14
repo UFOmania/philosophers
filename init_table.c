@@ -6,7 +6,7 @@
 /*   By: massrayb <massrayb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 10:17:54 by massrayb          #+#    #+#             */
-/*   Updated: 2025/07/13 15:04:43 by massrayb         ###   ########.fr       */
+/*   Updated: 2025/07/14 12:28:01 by massrayb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,6 @@ static int	init_locks(t_philosopher *philos, int count)
 	i = -1;
 	while (++i < LOCKS_COUNT)
 	{
-		// printf("%p\n", (*locks) + i);
 		state = pthread_mutex_init((locks) + i, NULL);
 		if (state != 0)
 		{
@@ -60,13 +59,12 @@ static int	init_locks(t_philosopher *philos, int count)
 	i = -1;
 	while (++i < count)
 	{
-		
 		(philos + i)->last_meal_lock = locks + LOCK_TIME;
 		(philos + i)->state_lock = locks + LOCK_STATE;
 		(philos + i)->starving_lock = locks + LOCK_STARVE;
 		(philos + i)->log_lock = locks + LOCK_LOG;
 	}
-		return (R_SUCCESS);
+	return (R_SUCCESS);
 }
 
 static void assign_forks(t_philosopher *philo, int id, int count, pthread_mutex_t *forks)

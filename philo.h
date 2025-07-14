@@ -6,7 +6,7 @@
 /*   By: massrayb <massrayb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 18:26:12 by massrayb          #+#    #+#             */
-/*   Updated: 2025/07/13 21:31:31 by massrayb         ###   ########.fr       */
+/*   Updated: 2025/07/14 13:43:15 by massrayb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,16 +74,25 @@ typedef struct s_philosopher
 
 typedef struct s_table
 {
-	pthread_t   	*threads;
+	pthread_t		*threads;
 	t_philosopher	*philosophers;
-	pthread_mutex_t *forks;
-}               t_table;
+	pthread_mutex_t	*forks;
+}					t_table;
+
+typedef struct s_obs_args
+{
+	t_philosopher	*philos;
+	int				state;
+	int				i;
+	int				count;
+	int				finished_philos;
+}				t_obs_args;
 
 //parse
 int	parse_args(t_args *args, int ac, char **av);
 
 //ft_atoi
-long	ft_atoi(const char *str);
+int	ft_atoi(const char *str);
 
 
 //clear
@@ -106,14 +115,15 @@ void	*the_observer(void *data);
 long	get_current_time(void);
 
 //log
-void	put_death_log(t_philosopher *philo);
+void	put_death_log(t_philosopher *philo, char *log);
 void	put_eat_log(t_philosopher *philo);
 void	put_sleep_log(t_philosopher *philo);
 void	put_think_log(t_philosopher *philo);
 void	put_fork_log(t_philosopher *philo);
+void	put_log(t_philosopher *philo, char *log);
 
 //ft_usleep
-int	ft_usleep(t_philosopher *philo, int amount);
+int	ft_usleep(t_philosopher *philo, long amount);
 
 
 //utils
@@ -122,4 +132,6 @@ int	is_philo_dead(t_philosopher *philo);
 int	get_is_starving(t_philosopher *philo);
 
 void kill_the_philo(t_philosopher *philo);
+void	end_the_simulation(t_obs_args *args);
+t_obs_args init_observer(t_philosopher *philos);
 #endif

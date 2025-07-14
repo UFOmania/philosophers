@@ -6,7 +6,7 @@
 /*   By: massrayb <massrayb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 13:12:20 by massrayb          #+#    #+#             */
-/*   Updated: 2025/07/13 23:00:46 by massrayb         ###   ########.fr       */
+/*   Updated: 2025/07/14 13:28:44 by massrayb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,25 +41,25 @@ static int	get_philo_state(t_philosopher *philo)
 
 static void	lock_forks(t_philosopher *philo, int flag)
 {
-	if (flag % 2)
+	if ((flag & 1) == 0 && (philo->left_fork))
 	{
 		pthread_mutex_lock(philo->left_fork);
-		put_fork_log(philo);
+		put_log(philo, " has taken a fork\n");
 		pthread_mutex_lock(philo->right_fork);
-		put_fork_log(philo);
+		put_log(philo, " has taken a fork\n");
 	}
 	else
 	{
 		pthread_mutex_lock(philo->right_fork);
-		put_fork_log(philo);
+		put_log(philo, " has taken a fork\n");
 		pthread_mutex_lock(philo->left_fork);
-		put_fork_log(philo);
+		put_log(philo, " has taken a fork\n");
 	}
 }
 
 static void	unlock_forks(t_philosopher *philo, int flag)
 {
-	if (flag % 2)
+	if ((flag & 2) == 0)
 	{
 		pthread_mutex_unlock(philo->left_fork);
 		pthread_mutex_unlock(philo->right_fork);
@@ -78,41 +78,67 @@ static void	set_last_meal(t_philosopher *philo)
 	pthread_mutex_unlock(philo->last_meal_lock);
 }
 
+int	alone_wolf(t_philosopher *philo)
+{
+	if (philo->left_fork == philo->right_fork)
+	{
+		pthread_mutex_lock(philo->left_fork);
+		put_log(philo, " has taken a fork\n");
+		if (ft_usleep(philo,  philo->time_to_die + 100) == 0)
+			return (pthread_mutex_unlock(philo->left_fork), 1);
+	}
+	return (0);
+}
+int	all_done(t_philosopher *philo)
+{
+	if (philo->num_times_must_eat != -1)
+	{
+		philo->num_times_must_eat--;
+		if (philo->num_times_must_eat == 0)
+		{
+			kill_the_philo(philo);
+			return (1);
+		}
+	}
+	return (0);
+}
+
+int meal_time_fatality(t_philosopher *philo)
+{
+	if (ft_usleep(philo, philo->time_to_eat) == 0)
+	{
+		unlock_forks(philo, 0);
+		return (1);
+	}
+	return (0);
+}
+
+
 void	*philo_brain(void *args)
 {
 	t_philosopher	*philo;
 
 	philo = (t_philosopher *)args;
-	if (philo->id % 2 == 0) usleep(philo->time_to_eat / 2);
+	if ((philo->id & 1)) 
+		ft_usleep(philo, 10);
+	if (alone_wolf(philo))
+		return (NULL);
 	while (1)
 	{
-		put_think_log(philo);
-		if (philo->left_fork == philo->right_fork)
-		{
-			if (ft_usleep(philo,  philo->time_to_die + 100) == 0)
-				break;
-		}
+		if ((philo->id & 1) == 0)
+			usleep(10);
 		lock_forks(philo, philo->id);
-		put_eat_log(philo);
-		if (ft_usleep(philo, philo->time_to_eat) == 0)
-		{
-			unlock_forks(philo, 0);
-			break;
-		}
-		unlock_forks(philo, philo->id);
+		put_log(philo, " is eating\n");
+		if (meal_time_fatality(philo))
+			return (NULL);
 		set_last_meal(philo);
-		if (philo->num_times_must_eat != -1)
-		{
-			philo->num_times_must_eat--;
-			if (philo->num_times_must_eat == 0)
-			{
-				kill_the_philo(philo);
-				break;
-			}
-		}
-		put_sleep_log(philo);
+		unlock_forks(philo, philo->id);
+		put_log(philo, " is sleeping\n");
+		if(all_done(philo))
+			return (NULL);
 		if (ft_usleep(philo, philo->time_to_sleep) == 0)
 			break;
+		put_log(philo, " is thinking\n");
 	}
 	return (NULL);
 }

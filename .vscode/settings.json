@@ -6,6 +6,8 @@
         "chrono": "c",
         "unordered_map": "c",
         "philo.h": "c",
-        "iterator": "c"
+        "iterator": "c",
+        "locale": "c",
+        "string": "c"
     }
 }

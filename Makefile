@@ -1,4 +1,4 @@
-CFLAGS = #`-pthread #-fsanitize=thread -g3
+CFLAGS = -fsanitize=address -g3
 
 SRC = 	clear.c\
 		debug.c\

@@ -6,7 +6,7 @@
 /*   By: massrayb <massrayb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 15:51:25 by massrayb          #+#    #+#             */
-/*   Updated: 2025/07/13 23:49:14 by massrayb         ###   ########.fr       */
+/*   Updated: 2025/07/14 13:53:37 by massrayb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,75 +32,64 @@ void kill_the_philo(t_philosopher *philo)
 int	update_philo_death_state(t_philosopher *philo)
 {
 	long	current;
-	int	state;
+	int		state;
 
-	usleep(400);
 	state = 1;
 	current = get_current_time();
 	pthread_mutex_lock(philo->last_meal_lock);
 
-	if ((current - philo->last_meal) >= philo->time_to_die)
-	{
-		// printf("current: %ld, last_meal: %ld, time_to_die: %ld, diff: %ld => (%ld > %ld)\n",
-		// 		current,
-		// 		philo->last_meal,
-		// 		philo->time_to_die,
-		// 		current - philo->last_meal,
-		// 		current - philo->last_meal,
-		// 		philo->time_to_die
-		// 	);
-		// kill_the_philo(philo);
+	if ((current - philo->last_meal) > philo->time_to_die)
 		state = 0;
-	}
 	pthread_mutex_unlock(philo->last_meal_lock);
-	// printf("check_deth_state %d >> %d\n",philo->id, state);
 	return (state);
 }
 
-void	end_the_simulation(t_philosopher *philos)
+void	end_the_simulation(t_obs_args *args)
 {
 	int	i;
 
 	i = -1;
-	while (++i < philos->philos_count)
-		kill_the_philo(philos + i);
+	while (++i < args->philos->philos_count)
+		kill_the_philo(args->philos + i);
+	
+	args->state = 0;
+}
+
+t_obs_args init_observer(t_philosopher *philos)
+{
+	t_obs_args	args;
+
+	args.philos = philos;
+	args.i = -1;
+	args.count = philos->philos_count;
+	args.finished_philos = args.count;
+	args.state = 1;
+	return (args);
 }
 
 void	*the_observer(void *data)
 {
-	t_philosopher *philos;
+	t_obs_args	args;
 
-	philos = (t_philosopher *)data;
-	int	state;
-	int	i;
-	int	time;
-	int	count;
-	count = philos->philos_count;
-	usleep(200);
-	// start = get_current_time();
-	state = 1;
-	// kill_the_philo(philos + 1);
-	// printf("the observer has been started with  %d\n", count);
-	int	finished_philos;
-	while (state)
+	args = init_observer((t_philosopher *)data);
+	while (args.state)
 	{
-		i = -1;
-		finished_philos = count;
-		while (++i < count)
+		args.i = -1;
+		args.finished_philos = args.count;
+		while (++args.i < args.count)
 		{
-			if (is_philo_dead(philos + i) == 0)
+			if (is_philo_dead(args.philos + args.i) == 0)
 			{
-				if (update_philo_death_state(philos + i) == 0)
+				if (update_philo_death_state(args.philos + args.i) == 0)
 				{
-					put_death_log(philos + i);
-					end_the_simulation(philos);
-					state = 0;
+					end_the_simulation(&args);
+					put_death_log(args.philos + args.i, " died\n");
 					break ;
 				}
 			}
 			else
-				finished_philos--;
-			if (finished_philos == 0)
+				args.finished_philos--;
+			if (args.finished_philos == 0)
 				return (printf("all done!!!\n"), NULL);
 		}
 		usleep(100);

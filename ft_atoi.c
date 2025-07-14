@@ -6,7 +6,7 @@
 /*   By: massrayb <massrayb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 18:46:02 by massrayb          #+#    #+#             */
-/*   Updated: 2025/07/14 11:10:13 by massrayb         ###   ########.fr       */
+/*   Updated: 2025/07/14 23:32:40 by massrayb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ int	ft_atoi(const char *str)
 	i = 0;
 	result = 0;
 	i = handle_white_spaces(str, i);
+	if (str[0] == '+')
+		i++;
 	result = handle_numbers(str, i);
 	return (result);
 }

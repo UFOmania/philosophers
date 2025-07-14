@@ -6,28 +6,19 @@
 /*   By: massrayb <massrayb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 15:51:25 by massrayb          #+#    #+#             */
-/*   Updated: 2025/07/14 13:53:37 by massrayb         ###   ########.fr       */
+/*   Updated: 2025/07/14 23:38:43 by massrayb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-long	get_current_time()
+long	get_current_time(void)
 {
-	struct timeval time;
+	struct timeval	time;
 
 	gettimeofday(&time, NULL);
 	return (((time.tv_usec / 1000) + (time.tv_sec * 1000)));
 }
-
-void kill_the_philo(t_philosopher *philo)
-{
-	pthread_mutex_lock(philo->state_lock);
-	philo->state = -1;
-	pthread_mutex_unlock(philo->state_lock);
-	// printf("killing %d \n", philo->id);
-}
-
 
 int	update_philo_death_state(t_philosopher *philo)
 {
@@ -36,26 +27,14 @@ int	update_philo_death_state(t_philosopher *philo)
 
 	state = 1;
 	current = get_current_time();
-	pthread_mutex_lock(philo->last_meal_lock);
-
+	pthread_mutex_lock(philo->locks + LOCK_TIME);
 	if ((current - philo->last_meal) > philo->time_to_die)
 		state = 0;
-	pthread_mutex_unlock(philo->last_meal_lock);
+	pthread_mutex_unlock(philo->locks + LOCK_TIME);
 	return (state);
 }
 
-void	end_the_simulation(t_obs_args *args)
-{
-	int	i;
-
-	i = -1;
-	while (++i < args->philos->philos_count)
-		kill_the_philo(args->philos + i);
-	
-	args->state = 0;
-}
-
-t_obs_args init_observer(t_philosopher *philos)
+t_obs_args	init_observer(t_philosopher *philos)
 {
 	t_obs_args	args;
 
@@ -65,6 +44,17 @@ t_obs_args init_observer(t_philosopher *philos)
 	args.finished_philos = args.count;
 	args.state = 1;
 	return (args);
+}
+
+static int	check_philo_state(t_obs_args *args)
+{
+	if (update_philo_death_state(args->philos + args->i) == 0)
+	{
+		end_the_simulation(args);
+		put_death_log(args->philos + args->i, " died\n");
+		return (1);
+	}
+	return (0);
 }
 
 void	*the_observer(void *data)
@@ -80,12 +70,8 @@ void	*the_observer(void *data)
 		{
 			if (is_philo_dead(args.philos + args.i) == 0)
 			{
-				if (update_philo_death_state(args.philos + args.i) == 0)
-				{
-					end_the_simulation(&args);
-					put_death_log(args.philos + args.i, " died\n");
+				if (check_philo_state(&args))
 					break ;
-				}
 			}
 			else
 				args.finished_philos--;

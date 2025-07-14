@@ -6,7 +6,7 @@
 /*   By: massrayb <massrayb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 10:17:54 by massrayb          #+#    #+#             */
-/*   Updated: 2025/07/14 12:28:01 by massrayb         ###   ########.fr       */
+/*   Updated: 2025/07/14 16:48:25 by massrayb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 static int	init_forks(pthread_mutex_t **forks, int count)
 {
 	int	i;
-	int state;
+	int	state;
 
 	*forks = malloc(sizeof(pthread_mutex_t) * count);
 	if (!*forks)
@@ -37,9 +37,9 @@ static int	init_forks(pthread_mutex_t **forks, int count)
 
 static int	init_locks(t_philosopher *philos, int count)
 {
-	int	i;
-	int state;
-	pthread_mutex_t *locks;
+	int				i;
+	int				state;
+	pthread_mutex_t	*locks;
 
 	locks = malloc(sizeof(pthread_mutex_t) * LOCKS_COUNT);
 	if (!locks)
@@ -58,16 +58,12 @@ static int	init_locks(t_philosopher *philos, int count)
 	}
 	i = -1;
 	while (++i < count)
-	{
-		(philos + i)->last_meal_lock = locks + LOCK_TIME;
-		(philos + i)->state_lock = locks + LOCK_STATE;
-		(philos + i)->starving_lock = locks + LOCK_STARVE;
-		(philos + i)->log_lock = locks + LOCK_LOG;
-	}
+		(philos + i)->locks = locks;
 	return (R_SUCCESS);
 }
 
-static void assign_forks(t_philosopher *philo, int id, int count, pthread_mutex_t *forks)
+static void	assign_forks(t_philosopher *philo, int id, int count, \
+pthread_mutex_t *forks)
 {
 	philo->right_fork = forks + id;
 	if (id == count - 1)
@@ -76,7 +72,8 @@ static void assign_forks(t_philosopher *philo, int id, int count, pthread_mutex_
 		philo->left_fork = forks + id + 1;
 }
 
-static int	init_philos(t_philosopher **philos, t_args args, pthread_mutex_t *forks, pthread_mutex_t *locks, int *is_done)
+static int	init_philos(t_philosopher **philos, t_args args, \
+pthread_mutex_t *forks, pthread_mutex_t *locks)
 {
 	int	i;
 
@@ -94,21 +91,19 @@ static int	init_philos(t_philosopher **philos, t_args args, pthread_mutex_t *for
 		(*philos + i)->time_to_die = args.time_to_die;
 		(*philos + i)->time_to_sleep = args.time_to_sleep;
 		(*philos + i)->time_to_eat = args.time_to_eat;
-		(*philos + i)->lanch = 0;
 		(*philos + i)->philos_count = args.philos_count;
-		(*philos + i)->is_done = is_done;
 		assign_forks(*philos + i, i, args.philos_count, forks);
 	}
 	return (R_SUCCESS);
 }
 
-int	init_table(t_args args, t_philosopher **philos, pthread_mutex_t **forks, int *is_done)
-{	
+int	init_table(t_args args, t_philosopher **philos, pthread_mutex_t **forks)
+{
 	pthread_mutex_t	*locks;
 
 	if (init_forks(forks, args.philos_count) == R_FAIL)
 		return (R_FAIL);
-	if (init_philos(philos, args, *forks, locks, is_done) == R_FAIL)
+	if (init_philos(philos, args, *forks, locks) == R_FAIL)
 		return (destroy_forks(*forks, args.philos_count), R_FAIL);
 	if (init_locks(*philos, args.philos_count) == R_FAIL)
 		return (destroy_forks(*forks, args.philos_count), R_FAIL);

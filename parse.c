@@ -6,13 +6,13 @@
 /*   By: massrayb <massrayb@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/14 18:35:03 by massrayb          #+#    #+#             */
-/*   Updated: 2025/07/14 11:17:10 by massrayb         ###   ########.fr       */
+/*   Updated: 2025/07/14 23:32:00 by massrayb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int is_digit(char *str)
+static int	is_digit(char *str)
 {
 	int	i;
 
@@ -20,66 +20,47 @@ static int is_digit(char *str)
 	if (str[0] == '+')
 		i++;
 	else if (str[0] == '-')
-		return (printf("error: invalid arguments \"unsigned values only\"\n"), 0);
+		return (printf("error: invalid arguments\n"), 0);
 	else if (str[0] == '\0')
-		return (printf("error: invalid arguments \"empty valus is invalid\" \n"), 0);
+		return (printf("error: invalid arguments\n"), 0);
 	while (str[i])
 	{
 		if (str[i] < '0' || str[i] > '9')
-			return (printf("error: invalid arguments \"digits only\" \n"), 0);
+			return (printf("error: invalid arguments\n"), 0);
 		i++;
 	}
 	if (str[i - 1] < '0' || str[i - 1] > '9')
-		return (printf("error: invalid arguments \"found no digit\" \n"), 0);
+		return (printf("error: invalid arguments\n"), 0);
 	return (1);
+}
+
+static int	extract_value(char *str, int *nbr)
+{
+	if (is_digit(str))
+	{
+		*nbr = ft_atoi(str);
+		if (*nbr <= 0)
+			return (printf("error: invalid arguments\n"), R_FAIL);
+	}
+	else
+		return (R_FAIL);
+	return (R_SUCCESS);
 }
 
 int	parse_args(t_args *args, int ac, char **av)
 {
-
 	*args = (t_args){0};
-	if (is_digit(av[0]))
-	{
-		args->philos_count = ft_atoi(av[0]);
-		if (args->philos_count <= 0)
-			return (printf("error: invalid arguments \"philos_count \" \n"), R_FAIL);
-	}
-	else
+	if (extract_value(av[0], &args->philos_count) == R_FAIL)
 		return (R_FAIL);
-	if (is_digit(av[1]))
-	{
-		args->time_to_die = ft_atoi(av[1]);
-		if (args->time_to_die < 0)
-			return (printf("error: invalid arguments \"time_to_die \" \n"), R_FAIL);
-	}
-	else
+	if (extract_value(av[1], &args->time_to_die) == R_FAIL)
 		return (R_FAIL);
-	if (is_digit(av[2]))
-	{
-		args->time_to_eat = ft_atoi(av[2]);
-		if (args->time_to_eat < 0)
-			return (printf("error: invalid arguments \"time_to_die \" \n"), R_FAIL);
-	
-	}
-	else
+	if (extract_value(av[2], &args->time_to_eat) == R_FAIL)
 		return (R_FAIL);
-	if (is_digit(av[3]))
-	{
-		args->time_to_sleep = ft_atoi(av[3]);
-		if (args->time_to_sleep < 0)
-			return (printf("error: invalid arguments \"time_to_die \" \n"), R_FAIL);
-	}
-	else
+	if (extract_value(av[3], &args->time_to_sleep) == R_FAIL)
 		return (R_FAIL);
 	if (ac == 6)
 	{
-		if (is_digit(av[4]))
-		{
-			args->num_times_must_eat = ft_atoi(av[4]);
-			if (args->num_times_must_eat <= 0)
-				return (printf("error: invalid arguments \"number_of_times_each_philosopher_must_eat \" \n"), R_FAIL);
-		}
-		else
+		if (extract_value(av[4], &args->num_times_must_eat) == R_FAIL)
 			return (R_FAIL);
 	}
 	else

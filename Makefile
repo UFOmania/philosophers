@@ -1,7 +1,6 @@
-CFLAGS = -fsanitize=address -g3
+CFLAGS = #-fsanitize=address -g3
 
 SRC = 	clear.c\
-		debug.c\
 		ft_atoi.c\
 		ft_usleep.c\
 		init_table.c\
